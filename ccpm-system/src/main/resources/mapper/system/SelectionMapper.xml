@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="edu.zut.chz.system.mapper.SelectionMapper">
+
+    <resultMap type="Selection" id="SelectionResult">
+        <result property="id" column="id"/>
+        <result property="courseId" column="course_id"/>
+        <result property="libraryId" column="library_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <association property="course" javaType="Course">
+            <id property="id" column="id"/>
+            <result property="courseName" column="course_name"/>
+        </association>
+        <association property="library" javaType="Library">
+            <id property="id" column="id"/>
+            <result property="title" column="title"/>
+        </association>
+    </resultMap>
+
+    <sql id="selectSelectionVo">
+        select id, course_id, library_id, create_time, update_time
+        from selection
+    </sql>
+
+    <select id="selectSelectionList" parameterType="Selection" resultMap="SelectionResult">
+        select s.id, s.course_id, s.library_id, s.create_time, s.update_time , c.course_name,l.title from selection s
+        left join course c on c.id=s.course_id
+        left join library l on l.id =s.library_id
+        <where>
+            <if test="courseId != null ">and s.course_id = #{courseId}</if>
+            <if test="libraryId != null ">and s.library_id = #{libraryId}</if>
+        </where>
+    </select>
+
+    <select id="selectSelectionById" parameterType="Long" resultMap="SelectionResult">
+        <include refid="selectSelectionVo"/>
+        where id = #{id}
+    </select>
+    <select id="getLibrarySectionECharts" resultType="edu.zut.chz.system.domain.vo.LibrarySectionEChartsVo">
+        SELECT l.title As libraryName, selection_count AS selectionNum
+        FROM library l
+        GROUP BY libraryName
+        ORDER BY selectionNum
+                DESC LIMIT 5
+    </select>
+
+    <insert id="insertSelection" parameterType="Selection" useGeneratedKeys="true" keyProperty="id">
+        insert into selection
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="courseId != null">course_id,</if>
+            <if test="libraryId != null">library_id,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="courseId != null">#{courseId},</if>
+            <if test="libraryId != null">#{libraryId},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateSelection" parameterType="Selection">
+        update selection
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="courseId != null">course_id = #{courseId},</if>
+            <if test="libraryId != null">library_id = #{libraryId},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSelectionById" parameterType="Long">
+        delete
+        from selection
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteSelectionByIds" parameterType="String">
+        delete from selection where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

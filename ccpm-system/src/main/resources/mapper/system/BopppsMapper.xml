@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="edu.zut.chz.system.mapper.BopppsMapper">
+
+    <resultMap type="Boppps" id="BopppsResult">
+        <result property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="courseId" column="course_id"/>
+        <result property="chapterId" column="chapter_id"/>
+        <result property="libraryId" column="library_id"/>
+        <result property="bridge" column="bridge"/>
+        <result property="bridgeTime" column="bridge_time"/>
+        <result property="object" column="object"/>
+        <result property="objectTime" column="object_time"/>
+        <result property="preAssessment" column="pre_assessment"/>
+        <result property="preTime" column="pre_time"/>
+        <result property="praticipatoryLearning" column="praticipatory_learning"/>
+        <result property="praticipatoryTime" column="praticipatory_time"/>
+        <result property="postAssessment" column="post_assessment"/>
+        <result property="postTime" column="post_time"/>
+        <result property="summary" column="summary"/>
+        <result property="state" column="state"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <association property="sysUser" javaType="SysUser">
+            <id property="userId" column="user_id"/>
+            <result property="userName" column="user_name"/>
+        </association>
+        <association property="course" javaType="Course">
+            <id property="id" column="id"/>
+            <result property="courseName" column="course_name"/>
+        </association>
+        <association property="library" javaType="Library">
+            <id property="id" column="id"/>
+            <result property="title" column="title"/>
+        </association>
+        <association property="chapter" javaType="Chapter">
+            <id property="id" column="id"/>
+            <result property="chapterName" column="chapter_name"/>
+        </association>
+    </resultMap>
+
+    <sql id="selectBopppsVo">
+        select id,
+               user_id,
+               course_id,
+               chapter_id,
+               library_id,
+               bridge,
+               bridge_time,
+               object,
+               object_time,
+               pre_assessment,
+               pre_time,
+               praticipatory_learning,
+               praticipatory_time,
+               post_assessment,
+               post_time,
+               summary,
+               state,
+               create_time,
+               update_time
+        from boppps
+    </sql>
+
+    <select id="selectBopppsList" parameterType="Boppps" resultMap="BopppsResult">
+        select b.id, b.user_id, b.course_id, b.chapter_id, b.library_id, b.bridge, b.bridge_time,
+        b.object, b.object_time, b.pre_assessment, b.pre_time, b.praticipatory_learning,
+        b.praticipatory_time, b.post_assessment, b.post_time, b.summary, b.state,
+        b.create_time, b.update_time ,co.course_name,ch.chapter_name,l.title,u.user_name
+        from boppps b
+        left join course co on co.id=b.course_id
+        left join chapter ch on ch.id=b.chapter_id
+        left join library l on l.id=b.library_id
+        left join sys_user u on u.user_id=b.user_id
+        <where>
+            <if test="userId != null ">and b.user_id = #{userId}</if>
+            <if test="courseId != null ">and b.course_id = #{courseId}</if>
+            <if test="chapterId != null ">and b.chapter_id = #{chapterId}</if>
+            <if test="libraryId != null ">and b.library_id = #{libraryId}</if>
+            <if test="bridge != null  and bridge != ''">and b.bridge = #{bridge}</if>
+            <if test="bridgeTime != null ">and b.bridge_time = #{bridgeTime}</if>
+            <if test="object != null  and object != ''">and b.object = #{object}</if>
+            <if test="objectTime != null ">and b.object_time = #{objectTime}</if>
+            <if test="preAssessment != null  and preAssessment != ''">and b.pre_assessment = #{preAssessment}</if>
+            <if test="preTime != null ">and b.pre_time = #{preTime}</if>
+            <if test="praticipatoryLearning != null  and praticipatoryLearning != ''">and b.praticipatory_learning =
+                #{praticipatoryLearning}
+            </if>
+            <if test="praticipatoryTime != null ">and b.praticipatory_time = #{praticipatoryTime}</if>
+            <if test="postAssessment != null  and postAssessment != ''">and b.post_assessment = #{postAssessment}</if>
+            <if test="postTime != null ">and b.post_time = #{postTime}</if>
+            <if test="summary != null  and summary != ''">and b.summary = #{summary}</if>
+            <if test="state != null  and state != ''">and b.state = #{state}</if>
+        </where>
+    </select>
+
+    <select id="selectBopppsById" parameterType="Long" resultMap="BopppsResult">
+        <include refid="selectBopppsVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertBoppps" parameterType="Boppps">
+        insert into boppps
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="courseId != null">course_id,</if>
+            <if test="chapterId != null">chapter_id,</if>
+            <if test="libraryId != null">library_id,</if>
+            <if test="bridge != null">bridge,</if>
+            <if test="bridgeTime != null">bridge_time,</if>
+            <if test="object != null">object,</if>
+            <if test="objectTime != null">object_time,</if>
+            <if test="preAssessment != null">pre_assessment,</if>
+            <if test="preTime != null">pre_time,</if>
+            <if test="praticipatoryLearning != null">praticipatory_learning,</if>
+            <if test="praticipatoryTime != null">praticipatory_time,</if>
+            <if test="postAssessment != null">post_assessment,</if>
+            <if test="postTime != null">post_time,</if>
+            <if test="summary != null">summary,</if>
+            <if test="state != null">state,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="courseId != null">#{courseId},</if>
+            <if test="chapterId != null">#{chapterId},</if>
+            <if test="libraryId != null">#{libraryId},</if>
+            <if test="bridge != null">#{bridge},</if>
+            <if test="bridgeTime != null">#{bridgeTime},</if>
+            <if test="object != null">#{object},</if>
+            <if test="objectTime != null">#{objectTime},</if>
+            <if test="preAssessment != null">#{preAssessment},</if>
+            <if test="preTime != null">#{preTime},</if>
+            <if test="praticipatoryLearning != null">#{praticipatoryLearning},</if>
+            <if test="praticipatoryTime != null">#{praticipatoryTime},</if>
+            <if test="postAssessment != null">#{postAssessment},</if>
+            <if test="postTime != null">#{postTime},</if>
+            <if test="summary != null">#{summary},</if>
+            <if test="state != null">#{state},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateBoppps" parameterType="Boppps">
+        update boppps
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="courseId != null">course_id = #{courseId},</if>
+            <if test="chapterId != null">chapter_id = #{chapterId},</if>
+            <if test="libraryId != null">library_id = #{libraryId},</if>
+            <if test="bridge != null">bridge = #{bridge},</if>
+            <if test="bridgeTime != null">bridge_time = #{bridgeTime},</if>
+            <if test="object != null">object = #{object},</if>
+            <if test="objectTime != null">object_time = #{objectTime},</if>
+            <if test="preAssessment != null">pre_assessment = #{preAssessment},</if>
+            <if test="preTime != null">pre_time = #{preTime},</if>
+            <if test="praticipatoryLearning != null">praticipatory_learning = #{praticipatoryLearning},</if>
+            <if test="praticipatoryTime != null">praticipatory_time = #{praticipatoryTime},</if>
+            <if test="postAssessment != null">post_assessment = #{postAssessment},</if>
+            <if test="postTime != null">post_time = #{postTime},</if>
+            <if test="summary != null">summary = #{summary},</if>
+            <if test="state != null">state = #{state},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteBopppsById" parameterType="Long">
+        delete
+        from boppps
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteBopppsByIds" parameterType="String">
+        delete from boppps where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

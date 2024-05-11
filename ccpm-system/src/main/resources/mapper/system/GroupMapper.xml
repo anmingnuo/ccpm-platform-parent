@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="edu.zut.chz.system.mapper.GroupMapper">
+
+    <resultMap type="Group" id="GroupResult">
+        <result property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="courseId" column="course_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <association property="course" javaType="Course">
+            <id column="id" property="id"/>
+            <result property="courseName" column="course_name"/>
+        </association>
+        <association property="user" javaType="SysUser">
+            <id property="userId" column="user_id"/>
+            <result property="userName" column="user_name"/>
+        </association>
+    </resultMap>
+
+    <sql id="selectGroupVo">
+        select id, user_id, course_id, create_time, update_time
+        from `group`
+    </sql>
+
+    <select id="selectGroupList" parameterType="Group" resultMap="GroupResult">
+        select g.id, g.user_id, g.course_id, g.create_time, g.update_time, s.user_name,c.course_name from `group` g
+        left join sys_user s on s.user_id= g.user_id
+        left join course c on c.id=g.course_id
+        <where>
+            <if test="userId != null ">and g.user_id = #{userId}</if>
+            <if test="courseId != null ">and g.course_id = #{courseId}</if>
+        </where>
+    </select>
+
+    <select id="selectGroupById" parameterType="Long" resultMap="GroupResult">
+        <include refid="selectGroupVo"/>
+        where id = #{id}
+    </select>
+    <select id="selectGroupListByUserId" resultMap="GroupResult">
+        select * from `group` g where g.user_id=#{userId}
+    </select>
+
+    <insert id="insertGroup" parameterType="Group" useGeneratedKeys="true" keyProperty="id">
+        insert into `group`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="courseId != null">course_id,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="courseId != null">#{courseId},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateGroup" parameterType="Group">
+        update `group`
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="courseId != null">course_id = #{courseId},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteGroupById" parameterType="Long">
+        delete
+        from `group`
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteGroupByIds" parameterType="String">
+        delete from `group` where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

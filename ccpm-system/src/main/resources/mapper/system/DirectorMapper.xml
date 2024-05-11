@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="edu.zut.chz.system.mapper.DirectorMapper">
+
+    <resultMap type="Director" id="DirectorResult">
+        <result property="id" column="id"/>
+        <result property="userName" column="user_name"/>
+        <result property="password" column="password"/>
+        <result property="nickName" column="nick_name"/>
+        <result property="gender" column="gender"/>
+        <result property="courseId" column="course_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <association property="course" javaType="Course">
+            <id column="id" property="id"/>
+            <result property="courseName" column="course_name"/>
+        </association>
+    </resultMap>
+
+    <sql id="selectDirectorVo">
+        select id,
+               user_name,
+               password,
+               nick_name,
+               gender,
+               course_id,
+               create_time,
+               update_time
+        from director
+    </sql>
+
+    <select id="selectDirectorList" parameterType="Director" resultMap="DirectorResult">
+        select d.id, d.user_name, d.password, d.nick_name, d.gender, d.course_id, d.create_time, d.update_time
+        ,c.course_name
+        from director d left join course c on c.id=d.course_id
+        <where>
+            <if test="userName != null  and userName != ''">and d.user_name like concat('%', #{userName}, '%')</if>
+            <if test="nickName != null  and nickName != ''">and d.nick_name like concat('%', #{nickName}, '%')</if>
+            <if test="gender != null  and gender != ''">and d.gender = #{gender}</if>
+            <if test="courseId != null ">and d.course_id = #{courseId}</if>
+        </where>
+    </select>
+
+    <select id="selectDirectorById" parameterType="Long" resultMap="DirectorResult">
+        <include refid="selectDirectorVo"/>
+        where id = #{id}
+    </select>
+    <select id="selectDirectorByUserName" resultMap="DirectorResult">
+        select *
+        from `director`
+        where user_name = #{userName}
+    </select>
+
+    <insert id="insertDirector" parameterType="Director">
+        insert into director
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="userName != null">user_name,</if>
+            <if test="password != null">password,</if>
+            <if test="nickName != null">nick_name,</if>
+            <if test="gender != null">gender,</if>
+            <if test="courseId != null">course_id,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="userName != null">#{userName},</if>
+            <if test="password != null">#{password},</if>
+            <if test="nickName != null">#{nickName},</if>
+            <if test="gender != null">#{gender},</if>
+            <if test="courseId != null">#{courseId},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateDirector" parameterType="Director">
+        update director
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userName != null">user_name = #{userName},</if>
+            <if test="password != null">password = #{password},</if>
+            <if test="nickName != null">nick_name = #{nickName},</if>
+            <if test="gender != null">gender = #{gender},</if>
+            <if test="courseId != null">course_id = #{courseId},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteDirectorById" parameterType="Long">
+        delete
+        from director
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteDirectorByIds" parameterType="String">
+        delete from director where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

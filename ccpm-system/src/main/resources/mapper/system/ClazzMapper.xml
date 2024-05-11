@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="edu.zut.chz.system.mapper.ClazzMapper">
+
+    <resultMap type="Clazz" id="ClazzResult">
+        <result property="id" column="id"/>
+        <result property="clazzName" column="clazz_name"/>
+        <result property="directionId" column="direction_id"/>
+        <result property="gradeId" column="grade_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <association property="grade" javaType="Grade">
+            <id property="id" column="id"/>
+            <result property="gradeName" column="grade_name"/>
+        </association>
+        <association property="direction" column="Direction">
+            <id property="id" column="id"/>
+            <result property="directionName" column="direction_name"/>
+        </association>
+    </resultMap>
+
+    <sql id="selectClazzVo">
+        select id, clazz_name, direction_id, grade_id, create_time, update_time
+        from clazz
+    </sql>
+
+    <select id="selectClazzList" parameterType="Clazz" resultMap="ClazzResult">
+        select c.id, c.clazz_name, c.direction_id, c.grade_id, c.create_time, c.update_time,g.grade_name,d.direction_name
+        from clazz c
+        left join grade g on g.id=c.grade_id
+        left join direction d on d.id=c.direction_id
+        <where>
+            <if test="clazzName != null  and clazzName != ''">and clazz_name = #{clazzName}</if>
+            <if test="directionId != null ">and c.direction_id = #{directionId}</if>
+            <if test="gradeId != null ">and c.grade_id = #{gradeId}</if>
+        </where>
+    </select>
+
+    <select id="selectClazzById" parameterType="Long" resultMap="ClazzResult">
+        <include refid="selectClazzVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertClazz" parameterType="Clazz" useGeneratedKeys="true" keyProperty="id">
+        insert into clazz
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="clazzName != null and clazzName != ''">clazz_name,</if>
+            <if test="directionId != null">direction_id,</if>
+            <if test="gradeId != null">grade_id,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="clazzName != null and clazzName != ''">#{clazzName},</if>
+            <if test="directionId != null">#{directionId},</if>
+            <if test="gradeId != null">#{gradeId},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateClazz" parameterType="Clazz">
+        update clazz
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="clazzName != null and clazzName != ''">clazz_name = #{clazzName},</if>
+            <if test="directionId != null">direction_id = #{directionId},</if>
+            <if test="gradeId != null">grade_id = #{gradeId},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteClazzById" parameterType="Long">
+        delete
+        from clazz
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteClazzByIds" parameterType="String">
+        delete from clazz where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

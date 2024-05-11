@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="edu.zut.chz.system.mapper.DirectionCourseMapper">
+    
+    <resultMap type="DirectionCourse" id="DirectionCourseResult">
+        <result property="directionId"    column="direction_id"    />
+        <result property="courseId"    column="course_id"    />
+        <association property="course" javaType="Course">
+            <id property="id" column="id"/>
+            <result property="courseName" column="course_name"/>
+        </association>
+        <association property="direction" javaType="Direction">
+            <id property="id" column="id"/>
+            <result property="directionName" column="direction_name"/>
+        </association>
+    </resultMap>
+
+    <sql id="selectDirectionCourseVo">
+        select direction_id, course_id from direction_course
+    </sql>
+
+    <select id="selectDirectionCourseList" parameterType="DirectionCourse" resultMap="DirectionCourseResult">
+        select dc.direction_id, dc.course_id ,c.course_name,d.direction_name
+        from direction_course dc
+        left join course c on c.id=dc.course_id
+        left join direction d on d.id=dc.direction_id
+        <where>  
+        </where>
+    </select>
+    
+    <select id="selectDirectionCourseByDirectionId" parameterType="Long" resultMap="DirectionCourseResult">
+        <include refid="selectDirectionCourseVo"/>
+        where direction_id = #{directionId}
+    </select>
+    <select id="getOne" resultType="java.lang.Integer">
+        select count(1) from direction_course where direction_id=#{directionId} and course_id=#{courseId}
+    </select>
+
+    <insert id="insertDirectionCourse" parameterType="DirectionCourse">
+        insert into direction_course
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="directionId != null">direction_id,</if>
+            <if test="courseId != null">course_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="directionId != null">#{directionId},</if>
+            <if test="courseId != null">#{courseId},</if>
+         </trim>
+    </insert>
+
+    <update id="updateDirectionCourse" parameterType="DirectionCourse">
+        update direction_course
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="courseId != null">course_id = #{courseId},</if>
+        </trim>
+        where direction_id = #{directionId}
+    </update>
+
+    <delete id="deleteDirectionCourseByDirectionId" parameterType="Long">
+        delete from direction_course where direction_id = #{directionId}
+    </delete>
+
+    <delete id="deleteDirectionCourseByDirectionIds" parameterType="String">
+        delete from direction_course where direction_id in 
+        <foreach item="directionId" collection="array" open="(" separator="," close=")">
+            #{directionId}
+        </foreach>
+    </delete>
+</mapper>
